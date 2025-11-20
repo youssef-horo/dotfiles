@@ -2,6 +2,8 @@
 
 Personal dotfiles and zsh scripts repository for oh-my-zsh configuration.
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 ## Structure
 
 ```
@@ -16,6 +18,23 @@ Personal dotfiles and zsh scripts repository for oh-my-zsh configuration.
 └── README.md               # This file
 ```
 
+## Installation
+
+Clone this repository:
+
+```bash
+git clone https://github.com/youssef-horo/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+```
+
+Then run the installation script:
+
+```bash
+./install.sh
+```
+
+Or follow the manual setup below.
+
 ## Prerequisites
 
 This setup uses Homebrew for package management. Install Homebrew first:
@@ -24,7 +43,7 @@ This setup uses Homebrew for package management. Install Homebrew first:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-## Installation
+## Setup
 
 ### Zsh Configuration (oh-my-zsh)
 
@@ -61,36 +80,6 @@ Add scripts directory to PATH in your `.zshrc` (if not already added):
 export PATH="$PATH:$HOME/dotfiles/scripts"
 ```
 
-### Homebrew Packages
-
-If your `.zshrc` references Homebrew-installed packages, make sure they are installed:
-
-```bash
-# Example: Install common tools
-brew install git node npm docker
-```
-
-## Usage
-
-### Quick Install
-
-Clone this repository and run the installation script:
-
-```bash
-git clone <repository-url> ~/dotfiles
-cd ~/dotfiles
-./install.sh
-```
-
-### Manual Installation
-
-1. Clone this repository:
-   ```bash
-   git clone <repository-url> ~/dotfiles
-   ```
-
-2. Follow the installation instructions above.
-
 ### Homebrew Dependencies
 
 This configuration uses several tools installed via Homebrew. Install them with:
@@ -107,5 +96,5 @@ Note: Some paths in `.zshrc` may reference Homebrew-installed binaries. Make sur
 
 ## License
 
-Personal use only.
+MIT License - see [LICENSE](LICENSE) for details.
 
