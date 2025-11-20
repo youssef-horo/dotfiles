@@ -1,0 +1,13 @@
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# Personal secrets (if any)
+secrets/
+*.secret
+
