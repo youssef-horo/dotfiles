@@ -6,10 +6,14 @@ Personal dotfiles and zsh scripts repository for oh-my-zsh configuration.
 
 ```
 .
-├── zsh/           # Zsh configuration files (.zshrc, oh-my-zsh custom plugins/themes)
-├── scripts/       # Reusable bash/zsh scripts
-├── dotfiles/      # Other dotfiles (.vimrc, .gitconfig, etc.)
-└── README.md      # This file
+├── zsh/                    # Zsh configuration files
+│   ├── .zshrc              # Main zsh configuration
+│   └── custom/             # oh-my-zsh custom files
+│       ├── plugins/        # Custom oh-my-zsh plugins
+│       └── themes/         # Custom oh-my-zsh themes
+├── scripts/                # Reusable bash/zsh scripts
+├── dotfiles/               # Other dotfiles (.vimrc, .gitconfig, etc.)
+└── README.md               # This file
 ```
 
 ## Installation
