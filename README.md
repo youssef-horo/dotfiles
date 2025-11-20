@@ -1,32 +1,35 @@
-# Dotfiles & Bash Scripts
+# Dotfiles & Zsh Scripts
 
-Personal dotfiles and bash scripts repository.
+Personal dotfiles and zsh scripts repository for oh-my-zsh configuration.
 
 ## Structure
 
 ```
 .
-├── bash/          # Bash configuration files (.bashrc, .bash_profile, etc.)
-├── scripts/       # Reusable bash scripts
+├── zsh/           # Zsh configuration files (.zshrc, oh-my-zsh custom plugins/themes)
+├── scripts/       # Reusable bash/zsh scripts
 ├── dotfiles/      # Other dotfiles (.vimrc, .gitconfig, etc.)
 └── README.md      # This file
 ```
 
 ## Installation
 
-### Bash Configuration
+### Zsh Configuration (oh-my-zsh)
 
 ```bash
-# Symlink bash files
-ln -s ~/dotfiles/bash/.bashrc ~/.bashrc
-ln -s ~/dotfiles/bash/.bash_profile ~/.bash_profile
+# Symlink zshrc
+ln -s ~/dotfiles/zsh/.zshrc ~/.zshrc
+
+# If using oh-my-zsh custom plugins/themes, symlink them:
+# ln -s ~/dotfiles/zsh/custom/plugins ~/.oh-my-zsh/custom/plugins
+# ln -s ~/dotfiles/zsh/custom/themes ~/.oh-my-zsh/custom/themes
 ```
 
 ### Scripts
 
-Add scripts directory to PATH in your `.bashrc`:
+Add scripts directory to PATH in your `.zshrc`:
 
-```bash
+```zsh
 export PATH="$PATH:$HOME/dotfiles/scripts"
 ```
 
