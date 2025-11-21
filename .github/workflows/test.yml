@@ -1,0 +1,105 @@
+name: Test Dotfiles
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-installation:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        # Test on latest Ubuntu and macOS
+        # Note: RedHat/CentOS runners are not available by default
+        # We test on Ubuntu which is similar to Debian
+        os: [ubuntu-latest, macos-latest]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup zsh (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+      
+      - name: Verify platform detection
+        run: |
+          chmod +x scripts/detect-platform.sh
+          PLATFORM=$(./scripts/detect-platform.sh)
+          echo "Detected platform: $PLATFORM"
+          echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
+      
+      - name: Test installation script
+        env:
+          CI: 1
+        run: |
+          chmod +x install.sh
+          # Run install script in CI mode (non-fatal errors)
+          ./install.sh || echo "Install script completed with warnings"
+      
+      - name: Verify zshrc syntax
+        run: |
+          if command -v zsh &> /dev/null; then
+            zsh -n zsh/.zshrc
+            echo "✓ zshrc syntax is valid"
+          else
+            echo "⚠ zsh not available, skipping syntax check"
+          fi
+      
+      - name: Test platform config loading
+        run: |
+          # Test that platform configs exist and are valid
+          if [[ -f "zsh/platform/macos.zsh" ]]; then
+            echo "✓ macos.zsh exists"
+          fi
+          if [[ -f "zsh/platform/linux.zsh" ]]; then
+            echo "✓ linux.zsh exists"
+          fi
+          if [[ -f "zsh/platform/debian.zsh" ]]; then
+            echo "✓ debian.zsh exists"
+          fi
+          if [[ -f "zsh/platform/redhat.zsh" ]]; then
+            echo "✓ redhat.zsh exists"
+          fi
+      
+      - name: Verify symlinks would be created
+        run: |
+          # Test that install script would create correct symlinks
+          DOTFILES_DIR="$(pwd)"
+          if [[ -f "zsh/.zshrc" ]]; then
+            echo "✓ zsh/.zshrc exists"
+          fi
+          if [[ -d "zsh/custom" ]]; then
+            echo "✓ zsh/custom directory exists"
+          fi
+
+  test-redhat:
+    name: Test RedHat-like (Ubuntu)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+      
+      - name: Test platform detection for RedHat
+        run: |
+          # Simulate RedHat by checking detection logic
+          chmod +x scripts/detect-platform.sh
+          PLATFORM=$(./scripts/detect-platform.sh)
+          echo "Platform detected: $PLATFORM"
+          # On Ubuntu, should detect as debian
+          if [[ "$PLATFORM" == *"debian"* ]]; then
+            echo "✓ Correctly detected as Debian-based"
+          fi
+

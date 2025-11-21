@@ -1,28 +1,48 @@
+# Platform detection and configuration
+DOTFILES_DIR="${DOTFILES_DIR:-${${(%):-%x}:A:h:h}}"
+PLATFORM_DIR="$DOTFILES_DIR/zsh/platform"
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/youssefhoro/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
+# Detect platform and load platform-specific config
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    PLATFORM="macos"
+elif [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+    case $ID in
+        debian|ubuntu)
+            PLATFORM="debian"
+            ;;
+        rhel|centos|fedora|rocky|almalinux)
+            PLATFORM="redhat"
+            ;;
+        *)
+            PLATFORM="linux"
+            ;;
+    esac
 else
-    if [ -f "/Users/youssefhoro/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/youssefhoro/opt/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/youssefhoro/opt/anaconda3/bin:$PATH"
-    fi
+    PLATFORM="linux"
 fi
-unset __conda_setup
-# <<< conda initialize <<<
 
+# Load platform-specific configuration
+if [[ -f "$PLATFORM_DIR/$PLATFORM.zsh" ]]; then
+    source "$PLATFORM_DIR/$PLATFORM.zsh"
+fi
 
+# Load common Linux config if on Linux
+if [[ "$PLATFORM" != "macos" ]] && [[ -f "$PLATFORM_DIR/linux.zsh" ]]; then
+    source "$PLATFORM_DIR/linux.zsh"
+fi
+
+# Completion setup
 autoload -Uz compinit
 compinit
-kubectl completion zsh > /dev/null
-kustomize completion zsh > /dev/null 
 
-macnst (){
-    netstat -Watnlv | grep LISTEN | awk '{"ps -o comm= -p " $9 | getline procname;colred="\033[01;31m";colclr="\033[0m"; print colred "proto: " colclr $1 colred " | addr.port: " colclr $4 colred " | pid: " colclr $9 colred " | name: " colclr procname;  }' | column -t -s "|"
-}
+# Kubernetes completions (if available)
+if command -v kubectl &> /dev/null; then
+    kubectl completion zsh > /dev/null 2>&1 || true
+fi
+if command -v kustomize &> /dev/null; then
+    kustomize completion zsh > /dev/null 2>&1 || true
+fi
 
 
 ##################################################################
@@ -98,7 +118,12 @@ ZSH_THEME="horo"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python brew)
+# Platform-specific plugins
+if [[ "$PLATFORM" == "macos" ]]; then
+    plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python brew)
+else
+    plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python)
+fi
 
 source $ZSH/oh-my-zsh.sh
 
@@ -128,17 +153,11 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/youssefhoro/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/youssefhoro/Downloads/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/youssefhoro/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/youssefhoro/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
-
-source /Users/youssefhoro/.docker/init-zsh.sh || true # Added by Docker Desktop
-export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
-export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-
-export KUBECONFIG=~/.kube/config:$HOME/talos_k8s/kubeconfig
-
-# Added by Windsurf
-export PATH="/Users/youssefhoro/.codeium/windsurf/bin:$PATH"
+# Kubernetes config (platform-agnostic)
+if [[ -f "$HOME/.kube/config" ]] || [[ -d "$HOME/.kube" ]]; then
+    export KUBECONFIG="$HOME/.kube/config"
+    # Add additional kubeconfigs if they exist
+    if [[ -f "$HOME/talos_k8s/kubeconfig" ]]; then
+        export KUBECONFIG="$KUBECONFIG:$HOME/talos_k8s/kubeconfig"
+    fi
+fi
