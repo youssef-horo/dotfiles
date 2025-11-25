@@ -25,7 +25,7 @@ fi
 # Load platform-specific configuration
 if [[ -f "$PLATFORM_DIR/$PLATFORM.zsh" ]]; then
     source "$PLATFORM_DIR/$PLATFORM.zsh"
-fi
+    fi
 
 # Load common Linux config if on Linux
 if [[ "$PLATFORM" != "macos" ]] && [[ -f "$PLATFORM_DIR/linux.zsh" ]]; then
@@ -56,7 +56,14 @@ export ZSH=$HOME/.oh-my-zsh
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="horo"
+
+# Use custom theme if it exists, otherwise fallback to robbyrussell
+# Check for custom theme before oh-my-zsh is loaded
+if [[ -f "$HOME/.oh-my-zsh/custom/themes/horo.zsh-theme" ]]; then
+    ZSH_THEME="horo"
+else
+    ZSH_THEME="robbyrussell"
+fi
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -120,7 +127,7 @@ ZSH_THEME="horo"
 # Add wisely, as too many plugins slow down shell startup.
 # Platform-specific plugins
 if [[ "$PLATFORM" == "macos" ]]; then
-    plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python brew)
+plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python brew)
 else
     plugins=(aws kubectl terraform git ansible docker docker-compose helm azure aws rsync python)
 fi

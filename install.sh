@@ -10,7 +10,7 @@ CI_MODE="${CI:-0}"
 if [[ "$CI_MODE" == "1" ]]; then
     set +e
 else
-    set -e
+set -e
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -82,17 +82,22 @@ else
     echo ".zshrc is already a symlink, skipping"
 fi
 
-# Create symlinks for custom plugins/themes if they exist
-if [ -d "$DOTFILES_DIR/zsh/custom/plugins" ] && [ "$(ls -A $DOTFILES_DIR/zsh/custom/plugins)" ]; then
-    if [ ! -L "$HOME/.oh-my-zsh/custom/plugins" ]; then
+# Create symlinks for custom plugins/themes directories
+# Always create symlinks even if directories are empty (for future use)
+if [ -d "$DOTFILES_DIR/zsh/custom/plugins" ]; then
+    if [ ! -L "$HOME/.oh-my-zsh/custom/plugins" ] && [ ! -d "$HOME/.oh-my-zsh/custom/plugins" ]; then
         echo "Creating symlink for custom plugins"
+        mkdir -p "$HOME/.oh-my-zsh/custom"
         ln -s "$DOTFILES_DIR/zsh/custom/plugins" "$HOME/.oh-my-zsh/custom/plugins"
     fi
 fi
 
-if [ -d "$DOTFILES_DIR/zsh/custom/themes" ] && [ "$(ls -A $DOTFILES_DIR/zsh/custom/themes)" ]; then
-    if [ ! -L "$HOME/.oh-my-zsh/custom/themes" ]; then
+# Always create symlink for custom themes directory (even if empty)
+# This ensures the directory structure is ready for future themes
+if [ -d "$DOTFILES_DIR/zsh/custom/themes" ]; then
+    if [ ! -L "$HOME/.oh-my-zsh/custom/themes" ] && [ ! -d "$HOME/.oh-my-zsh/custom/themes" ]; then
         echo "Creating symlink for custom themes"
+        mkdir -p "$HOME/.oh-my-zsh/custom"
         ln -s "$DOTFILES_DIR/zsh/custom/themes" "$HOME/.oh-my-zsh/custom/themes"
     fi
 fi
