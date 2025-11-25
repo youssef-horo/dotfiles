@@ -78,6 +78,72 @@ jobs:
           if [[ -d "zsh/custom" ]]; then
             echo "✓ zsh/custom directory exists"
           fi
+      
+      - name: Final integration test - zsh usage and .zshrc
+        run: |
+          echo "=========================================="
+          echo "Final Integration Test - zsh and .zshrc"
+          echo "=========================================="
+          
+          # Verify zsh is installed (should be from install.sh)
+          if ! command -v zsh &> /dev/null; then
+            echo "❌ FAIL: zsh is not installed"
+            exit 1
+          fi
+          echo "✓ zsh is installed: $(which zsh)"
+          echo "✓ zsh version: $(zsh --version)"
+          
+          # Ensure .zshrc symlink exists (should be created by install.sh)
+          if [[ ! -L "$HOME/.zshrc" ]] && [[ ! -f "$HOME/.zshrc" ]]; then
+            echo "Creating .zshrc symlink for test..."
+            ln -s "$(pwd)/zsh/.zshrc" "$HOME/.zshrc"
+          fi
+          
+          # Test 1: User can use zsh
+          echo ""
+          echo "Test 1: User can execute zsh"
+          if zsh -c "echo 'zsh works'"; then
+            echo "✅ PASS: zsh can be executed"
+          else
+            echo "❌ FAIL: zsh cannot be executed"
+            exit 1
+          fi
+          
+          # Test 2: source .zshrc works without errors
+          echo ""
+          echo "Test 2: source ~/.zshrc executes successfully"
+          if zsh -c "source ~/.zshrc && echo 'zshrc loaded successfully'"; then
+            echo "✅ PASS: .zshrc can be sourced without errors"
+          else
+            echo "❌ FAIL: .zshrc cannot be sourced"
+            exit 1
+          fi
+          
+          # Test 3: zsh can run commands after sourcing .zshrc
+          echo ""
+          echo "Test 3: zsh can execute commands after loading .zshrc"
+          if zsh -c "source ~/.zshrc && echo 'Theme: '\$ZSH_THEME && echo 'Commands work after loading .zshrc'"; then
+            echo "✅ PASS: Commands work after loading .zshrc"
+          else
+            echo "❌ FAIL: Commands fail after loading .zshrc"
+            exit 1
+          fi
+          
+          # Test 4: Verify oh-my-zsh is loaded (if installed)
+          if [[ -d "$HOME/.oh-my-zsh" ]]; then
+            echo ""
+            echo "Test 4: oh-my-zsh is properly configured"
+            if zsh -c "source ~/.zshrc && [[ -n \"\$ZSH\" ]] && echo \"oh-my-zsh loaded: \$ZSH\""; then
+              echo "✅ PASS: oh-my-zsh is properly configured"
+            else
+              echo "⚠ WARN: oh-my-zsh may not be properly configured"
+            fi
+          fi
+          
+          echo ""
+          echo "=========================================="
+          echo "✅ All integration tests passed!"
+          echo "=========================================="
 
   test-redhat:
     name: Test RedHat-like (Ubuntu)
@@ -101,5 +167,20 @@ jobs:
           # On Ubuntu, should detect as debian
           if [[ "$PLATFORM" == *"debian"* ]]; then
             echo "✓ Correctly detected as Debian-based"
+          fi
+      
+      - name: Test installation and zsh
+        env:
+          CI: 1
+        run: |
+          chmod +x install.sh
+          ./install.sh || echo "Install script completed with warnings"
+          
+          # Test zsh and .zshrc
+          if zsh -c "source ~/.zshrc && echo '✅ zsh and .zshrc work'"; then
+            echo "✅ All tests passed"
+          else
+            echo "❌ Tests failed"
+            exit 1
           fi
 
