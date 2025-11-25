@@ -15,10 +15,12 @@ cd ~/dotfiles
 ## Supported Platforms
 
 - **macOS** (Homebrew)
-- **Debian/Ubuntu** (apt)
-- **RedHat/CentOS/Fedora** (dnf/yum)
+- **Debian/Ubuntu** (Homebrew + apt)
+- **RedHat/CentOS/Fedora** (Homebrew + dnf/yum)
 
 The dotfiles automatically detect your platform and load appropriate configurations.
+
+**Note:** Homebrew is installed on all platforms for consistent package management. Native package managers (apt, dnf, yum) are still available as alternatives.
 
 ## Structure
 
@@ -31,6 +33,9 @@ The dotfiles automatically detect your platform and load appropriate configurati
 ├── scripts/                # Reusable bash/zsh scripts
 ├── dotfiles/               # Other dotfiles
 ├── install.sh              # Installation script
+├── Brewfile                # Homebrew packages (all platforms)
+├── packages-apt.txt        # Debian/Ubuntu packages (optional)
+├── packages-dnf.txt        # RedHat/CentOS/Fedora packages (optional)
 └── docs/                   # Documentation
 ```
 

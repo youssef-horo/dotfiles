@@ -29,6 +29,52 @@ echo "Detected OS: $OS"
 echo "Package manager: $PKG_MANAGER"
 echo ""
 
+# Install Homebrew on all platforms if not present
+if ! command -v brew &> /dev/null; then
+    echo "Homebrew not found. Installing..."
+    if [[ "$OS" == "macos" ]]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add Homebrew to PATH (for Apple Silicon)
+        if [[ -d "/opt/homebrew" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -d "/usr/local/Homebrew" ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+    else
+        # Install Homebrew on Linux
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add Homebrew to PATH for Linux
+        if [[ -d "$HOME/.linuxbrew" ]]; then
+            eval "$($HOME/.linuxbrew/bin/brew shellenv)"
+        elif [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+    fi
+    
+    # Add to shell profile for persistence
+    if [[ -f "$HOME/.zshrc" ]]; then
+        if ! grep -q "brew shellenv" "$HOME/.zshrc"; then
+            if [[ "$OS" == "macos" ]]; then
+                if [[ -d "/opt/homebrew" ]]; then
+                    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
+                elif [[ -d "/usr/local/Homebrew" ]]; then
+                    echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zshrc"
+                fi
+            else
+                if [[ -d "$HOME/.linuxbrew" ]]; then
+                    echo 'eval "$($HOME/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
+                elif [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
+                    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
+                fi
+            fi
+        fi
+    fi
+else
+    echo "Homebrew is already installed"
+fi
+
 # Install zsh if not present (Linux only)
 if [[ "$OS" != "macos" ]]; then
     if ! command -v zsh &> /dev/null; then
@@ -102,6 +148,34 @@ if [ -d "$DOTFILES_DIR/zsh/custom/themes" ]; then
     fi
 fi
 
+# Install packages from Brewfile (works on all platforms)
+echo ""
+echo "Installing packages from Brewfile..."
+if command -v brew &> /dev/null; then
+    if [ -f "$DOTFILES_DIR/Brewfile" ]; then
+        echo "Installing packages from Brewfile..."
+        brew bundle --file="$DOTFILES_DIR/Brewfile" || echo "Some packages may have failed to install"
+    else
+        echo "Brewfile not found, skipping package installation"
+    fi
+else
+    echo "Homebrew not available, skipping package installation"
+fi
+
+# Optional: Also install packages from native package managers
+# (as fallback or for packages not available in Homebrew)
+if [[ "$CI_MODE" != "1" ]]; then
+    if [[ "$OS" == "debian" ]] && [ -f "$DOTFILES_DIR/packages-apt.txt" ]; then
+        echo ""
+        echo "Note: You can also install packages from packages-apt.txt:"
+        echo "  xargs -a $DOTFILES_DIR/packages-apt.txt sudo apt-get install -y"
+    elif [[ "$OS" == "redhat" ]] && [ -f "$DOTFILES_DIR/packages-dnf.txt" ]; then
+        echo ""
+        echo "Note: You can also install packages from packages-dnf.txt:"
+        echo "  xargs -a $DOTFILES_DIR/packages-dnf.txt sudo $PKG_MANAGER install -y"
+    fi
+fi
+
 echo ""
 echo "Installation complete!"
 echo ""
@@ -109,13 +183,8 @@ echo "Next steps:"
 echo "1. Reload your shell: source ~/.zshrc"
 echo "2. Or restart your terminal"
 echo ""
-echo "Platform-specific notes:"
-if [[ "$OS" == "macos" ]]; then
-    echo "- Homebrew is recommended for package management"
-    echo "- Run: brew install git kubectl kustomize"
-elif [[ "$OS" == "debian" ]]; then
-    echo "- Install packages with: sudo apt-get install git kubectl kustomize"
-elif [[ "$OS" == "redhat" ]]; then
-    echo "- Install packages with: sudo $PKG_MANAGER install git kubectl kustomize"
-fi
+echo "Package installation:"
+echo "- Packages installed from Brewfile (Homebrew works on all platforms)"
+echo "- To update: brew bundle --file=$DOTFILES_DIR/Brewfile"
+echo "- To add new packages: Edit Brewfile and run: brew bundle --file=$DOTFILES_DIR/Brewfile"
 

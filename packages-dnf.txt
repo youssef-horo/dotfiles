@@ -1,0 +1,32 @@
+# RedHat/CentOS/Fedora packages
+# Install with: xargs -a packages-dnf.txt sudo dnf install -y
+
+# Core tools
+git
+curl
+wget
+
+# Kubernetes tools
+kubectl
+kustomize
+helm
+
+# Development tools
+docker
+docker-compose
+
+# Cloud tools
+terraform
+ansible
+
+# Utilities
+jq
+tree
+htop
+
+# Optional: Uncomment to install
+# nodejs
+# npm
+# python3
+# golang
+

@@ -1,0 +1,32 @@
+# Debian/Ubuntu packages
+# Install with: xargs -a packages-apt.txt sudo apt-get install -y
+
+# Core tools
+git
+curl
+wget
+
+# Kubernetes tools
+kubectl
+kustomize
+helm
+
+# Development tools
+docker.io
+docker-compose
+
+# Cloud tools
+terraform
+ansible
+
+# Utilities
+jq
+tree
+htop
+
+# Optional: Uncomment to install
+# nodejs
+# npm
+# python3
+# golang-go
+

@@ -1,5 +1,14 @@
 # Linux-specific configuration (Debian/RedHat common)
 
+# Homebrew on Linux
+if [[ -d "$HOME/.linuxbrew" ]]; then
+    eval "$($HOME/.linuxbrew/bin/brew shellenv)" 2>/dev/null || true
+    export PATH="$HOME/.linuxbrew/bin:$HOME/.linuxbrew/sbin:$PATH"
+elif [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" 2>/dev/null || true
+    export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+fi
+
 # Conda initialization (if installed)
 if [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
     . "$HOME/anaconda3/etc/profile.d/conda.sh"
